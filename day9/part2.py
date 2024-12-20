@@ -1,49 +1,54 @@
 #!/usr/bin/env python3
 
-with open('example') as f:
+with open('input') as f:
     blocks, map = [], tuple(int(d) for d in f.read().rstrip())
 
 i, j = -1, 0
 while i < len(map) - 1:
     i += 1
-    if map[i] == 0:
+    if not map[i]:
         continue
     elif i % 2 == 0:
-        blocks.append([j] * map[i])
+        blocks.append(str(j) * map[i])
         j += 1
     else:
-        blocks.append(['.'] * map[i])
+        blocks.append('.' * map[i])
 
-#print(blocks)
-
-i, e = len(blocks), None
+i = len(blocks)
 while i > 0:
     i -= 1
+
     if blocks[i][0] == '.':
         continue
 
     j = -1
-    while j < len(blocks) - 1 and j < i:
+    while j < i - 1:
         j += 1
-        if blocks[j][0] != '.' or len(blocks[i]) > len(blocks[j]):
+        if blocks[j][0] != '.' or len(blocks[j]) < len(blocks[i]):
             continue
-        ldiff = len(blocks[j]) - len(blocks[i])
-        b1, b2 = blocks.pop(i), blocks.pop(j)
-        if ldiff > 0:
-            blocks.insert(j, ['.'] * ldiff)
-        blocks.insert(j, b1)
-        if i == len(blocks) - 1:
-            blocks.insert(i + 1, ['.'] * len(b1))
+        b = blocks.pop(i)
+
+        if i > 0 and blocks[i - 1][0] == '.' and i < len(blocks) and blocks[i][0] == '.':
+            blocks[i - 1] = blocks[i - 1] + '.' * len(b) + blocks[i]
+            blocks.pop(i)
+        elif i > 0 and blocks[i - 1][0] == '.':
+            blocks[i - 1] = blocks[i - 1] + '.' * len(b)
+        elif i < len(blocks) and blocks[i][0] == '.':
+            blocks[i] = blocks[i] + '.' * len(b)
         else:
-            blocks.insert(i, ['.'] * len(b1))
-        #i = len(blocks)
-        i += 1
+            blocks.insert(i, '.' * len(b))
+
+        if len(blocks[j]) == len(b):
+            blocks.pop(j)
+        else:
+            blocks[j] = blocks[j][len(b):]
+        blocks.insert(j, b)
+
         break
-    #print(blocks)
 
-flat_blocks = tuple(b1 for b2 in blocks for b1 in b2)
-#print(flat_blocks)
+sum = 0
+for i, b in enumerate(''.join(blocks)):
+    if b != '.':
+        sum += i * int(b)
 
-checksum = tuple(i * d for i, d in enumerate(flat_blocks) if d != '.')
-
-print(sum(checksum))
+print(sum)
