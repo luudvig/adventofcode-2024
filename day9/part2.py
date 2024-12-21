@@ -14,11 +14,15 @@ while i < len(map) - 1:
     else:
         blocks += '.' * map[i]
 
+moved = {}
 i = len(blocks)
 while i > 0:
     i -= 1
     
-    if blocks[i] == '.':
+    if i in moved:
+        i -= moved[i] - 1
+        continue
+    elif blocks[i] == '.':
         continue
 
     b1_end = i + 1
@@ -47,6 +51,7 @@ while i > 0:
         if (d1 := b1_end - b1_beg) <= (d2 := b2_end - b2_beg):
             blocks = blocks[:b2_beg] + blocks[b1_beg:b1_end] + blocks[b2_end - (d2 - d1):]
             blocks = blocks[:b1_beg] + '.' * d1 + blocks[b1_end:]
+            moved[b2_end - (d2 - d1) - 1] = d1
             break
 
 sum = 0
